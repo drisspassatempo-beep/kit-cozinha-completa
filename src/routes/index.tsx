@@ -101,7 +101,7 @@ function Storefront() {
         <div className="page-shell flex h-16 items-center justify-between">
           <a href="#inicio" className="flex items-center gap-3" aria-label="Sua Cozinha — início">
             <span className="grid size-9 place-items-center rounded-full bg-gold text-gold-foreground"><UtensilsCrossed size={18} /></span>
-            <span className="text-lg font-extrabold leading-none">Sua Cozinha<small className="mt-1 block text-[10px] font-semibold uppercase text-gold">mais prática</small></span>
+            <span className="text-lg font-extrabold leading-none">Achadinhos da china<small className="mt-1 block text-[10px] font-semibold uppercase text-gold">MAIS PRÁTICA</small></span>
           </a>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-muted-foreground md:flex" aria-label="Navegação principal">
             <a href="#incluso" className="hover:text-foreground">O kit</a><a href="#beneficios" className="hover:text-foreground">Benefícios</a><a href="#avaliacoes" className="hover:text-foreground">Avaliações</a>
