@@ -112,7 +112,7 @@ function Storefront() {
             <span className="text-lg font-extrabold leading-none">Achadinhos da china<small className="mt-1 block text-[10px] font-semibold uppercase text-gold">MAIS PRÁTICA</small></span>
           </a>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-muted-foreground md:flex" aria-label="Navegação principal">
-            <a href="#incluso" className="hover:text-foreground">O kit</a><a href="#beneficios" className="hover:text-foreground">Benefícios</a><a href="#avaliacoes" className="hover:text-foreground">Avaliações</a>
+            <a href="#incluso" className="hover:text-foreground">O kit</a><a href="#beneficios" className="hover:text-foreground">Benefícios</a><a href="#avaliacoes" className="hover:text-foreground">Avaliações</a><a href="#duvidas" className="hover:text-foreground">Dúvidas</a><a href="#rastreio" className="hover:text-foreground">Meu pedido</a>
           </nav>
           <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><LockKeyhole size={15} /> Compra segura</span>
         </div>
@@ -156,6 +156,10 @@ function Storefront() {
       <section id="avaliacoes" className="py-16 sm:py-20"><div className="page-shell"><div className="flex flex-wrap items-end justify-between gap-5"><div><p className="text-xs font-extrabold uppercase text-gold">Experiências reais</p><h2 className="mt-2 text-3xl font-extrabold">Quem comprou, recomenda</h2></div><div className="flex items-center gap-3"><span className="text-2xl font-extrabold">4,9</span><span className="text-sm text-gold">★★★★★</span></div></div>
         <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{reviews.map(([text,author]) => <article key={author} className="rounded-lg border border-border bg-card p-5"><div className="text-sm text-gold" aria-label="5 estrelas">★★★★★</div><blockquote className="mt-4 text-sm leading-6 text-card-foreground">“{text}”</blockquote><p className="mt-5 text-xs font-bold text-muted-foreground">{author}</p></article>)}</div>
       </div></section>
+
+      <ProductQuestions />
+      <OrderTracking />
+
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-background/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-4xl items-center justify-between gap-4"><div className="hidden sm:block"><p className="text-xs font-bold uppercase text-gold">Oferta especial</p><p className="font-extrabold">R$ 12,99 <span className="ml-2 text-xs font-medium text-muted-foreground line-through">R$ 49,90</span></p></div><Button variant="sale" size="sale" className="w-full sm:w-auto" onClick={openCheckout}>Comprar agora <ChevronRight /></Button></div></div>
 
