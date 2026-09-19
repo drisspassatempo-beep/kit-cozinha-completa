@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { z } from "zod";
 import {
@@ -8,8 +9,12 @@ import {
   Check,
   ChevronRight,
   House,
+  Loader2,
   LockKeyhole,
+  MessageCircleQuestion,
   PackageCheck,
+  PackageSearch,
+  Phone,
   ShieldCheck,
   Sparkles,
   Truck,
@@ -17,9 +22,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import productImage from "@/assets/kitchen-utensil-kit.jpg";
+import { askAboutProduct } from "@/lib/ai.functions";
+import { lookupTracking, type TrackingResult } from "@/lib/tracking";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -104,7 +112,7 @@ function Storefront() {
             <span className="text-lg font-extrabold leading-none">Achadinhos da china<small className="mt-1 block text-[10px] font-semibold uppercase text-gold">MAIS PRÁTICA</small></span>
           </a>
           <nav className="hidden items-center gap-8 text-sm font-semibold text-muted-foreground md:flex" aria-label="Navegação principal">
-            <a href="#incluso" className="hover:text-foreground">O kit</a><a href="#beneficios" className="hover:text-foreground">Benefícios</a><a href="#avaliacoes" className="hover:text-foreground">Avaliações</a>
+            <a href="#incluso" className="hover:text-foreground">O kit</a><a href="#beneficios" className="hover:text-foreground">Benefícios</a><a href="#avaliacoes" className="hover:text-foreground">Avaliações</a><a href="#duvidas" className="hover:text-foreground">Dúvidas</a><a href="#rastreio" className="hover:text-foreground">Meu pedido</a>
           </nav>
           <span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><LockKeyhole size={15} /> Compra segura</span>
         </div>
@@ -148,6 +156,10 @@ function Storefront() {
       <section id="avaliacoes" className="py-16 sm:py-20"><div className="page-shell"><div className="flex flex-wrap items-end justify-between gap-5"><div><p className="text-xs font-extrabold uppercase text-gold">Experiências reais</p><h2 className="mt-2 text-3xl font-extrabold">Quem comprou, recomenda</h2></div><div className="flex items-center gap-3"><span className="text-2xl font-extrabold">4,9</span><span className="text-sm text-gold">★★★★★</span></div></div>
         <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{reviews.map(([text,author]) => <article key={author} className="rounded-lg border border-border bg-card p-5"><div className="text-sm text-gold" aria-label="5 estrelas">★★★★★</div><blockquote className="mt-4 text-sm leading-6 text-card-foreground">“{text}”</blockquote><p className="mt-5 text-xs font-bold text-muted-foreground">{author}</p></article>)}</div>
       </div></section>
+
+      <ProductQuestions />
+      <OrderTracking />
+
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-background/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-4xl items-center justify-between gap-4"><div className="hidden sm:block"><p className="text-xs font-bold uppercase text-gold">Oferta especial</p><p className="font-extrabold">R$ 12,99 <span className="ml-2 text-xs font-medium text-muted-foreground line-through">R$ 49,90</span></p></div><Button variant="sale" size="sale" className="w-full sm:w-auto" onClick={openCheckout}>Comprar agora <ChevronRight /></Button></div></div>
 
@@ -195,4 +207,117 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
 
 function Field({ id, label, optional, error, className, children }: { id: string; label: string; optional?: boolean | undefined; error?: string | undefined; className?: string | undefined; children: ReactNode }) {
   return <div className={className}><Label htmlFor={id} className="mb-2 block">{label} {optional ? <span className="font-normal text-muted-foreground">(opcional)</span> : <span aria-hidden="true">*</span>}</Label>{children}{error && <p className="mt-1.5 text-xs font-semibold text-danger" role="alert">{error}</p>}</div>;
+}
+
+function ProductQuestions() {
+  const ask = useServerFn(askAboutProduct);
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const suggestions = ["Quantas peças vêm no kit?", "O material é resistente?", "Em quanto tempo chega?", "Pode ir na lava-louças?"];
+
+  const send = async (text: string) => {
+    const value = text.trim();
+    if (value.length < 3 || loading) return;
+    setLoading(true); setError(""); setAnswer("");
+    try {
+      const result = await ask({ data: { question: value } });
+      setAnswer(result.answer);
+    } catch {
+      setError("Não foi possível responder agora. Tente novamente em instantes.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section id="duvidas" className="border-y border-border bg-surface-soft py-16 text-gold-foreground sm:py-20">
+      <div className="page-shell max-w-3xl">
+        <p className="text-xs font-extrabold uppercase text-primary">Tire suas dúvidas</p>
+        <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">Pergunte sobre o produto</h2>
+        <p className="mt-3 text-base opacity-70">Um assistente responde na hora com as informações da oferta.</p>
+        <form onSubmit={(event) => { event.preventDefault(); void send(question); }} className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <Input value={question} maxLength={300} onChange={(event) => setQuestion(event.target.value)} placeholder="Ex.: o porta-utensílios acompanha o kit?" aria-label="Sua pergunta sobre o produto" className="h-12" />
+          <Button type="submit" variant="sale" size="sale" disabled={loading || question.trim().length < 3}>
+            {loading ? <><Loader2 className="animate-spin" /> Respondendo</> : <><MessageCircleQuestion /> Perguntar</>}
+          </Button>
+        </form>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {suggestions.map((item) => (
+            <button key={item} type="button" onClick={() => { setQuestion(item); void send(item); }} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold opacity-80 hover:opacity-100">{item}</button>
+          ))}
+        </div>
+        {error && <p className="mt-5 text-sm font-semibold text-danger" role="alert">{error}</p>}
+        {answer && (
+          <div className="mt-6 rounded-lg border border-border bg-card p-5 text-card-foreground" aria-live="polite">
+            <p className="text-xs font-extrabold uppercase text-gold">Resposta</p>
+            <p className="mt-2 whitespace-pre-line text-sm leading-6">{answer}</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function OrderTracking() {
+  const [query, setQuery] = useState("");
+  const [result, setResult] = useState<TrackingResult | null>(null);
+  const [error, setError] = useState("");
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const value = query.trim();
+    if (value.length < 8) {
+      setResult(null);
+      setError("Informe o código de rastreio, o WhatsApp ou o telefone da compra.");
+      return;
+    }
+    setError("");
+    setResult(lookupTracking(value));
+  };
+
+  return (
+    <section id="rastreio" className="py-16 sm:py-20">
+      <div className="page-shell max-w-3xl">
+        <p className="text-xs font-extrabold uppercase text-gold">Acompanhe seu pedido</p>
+        <h2 className="mt-2 text-3xl font-extrabold">Onde está o meu kit?</h2>
+        <p className="mt-3 text-sm text-muted-foreground">Consulte pelo código de rastreio ou pelo WhatsApp/telefone usado na compra.</p>
+        <form onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Input value={query} maxLength={40} onChange={(event) => setQuery(event.target.value)} placeholder="BR123456789SC ou (11) 99999-8888" aria-label="Código de rastreio, WhatsApp ou telefone" className="h-12" />
+          <Button type="submit" variant="saleOutline" size="sale"><PackageSearch /> Consultar</Button>
+        </form>
+        <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><Phone size={13} /> Também atendemos pelo WhatsApp informado no pedido.</p>
+        {error && <p className="mt-4 text-sm font-semibold text-danger" role="alert">{error}</p>}
+        {result && (
+          <div className="mt-7 rounded-lg border border-border bg-card p-5 sm:p-7" aria-live="polite">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase text-muted-foreground">Código de rastreio</p>
+                <p className="text-lg font-extrabold">{result.code}</p>
+              </div>
+              <span className="rounded-full bg-success-soft px-3 py-1.5 text-xs font-extrabold text-primary">{result.status}</span>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">{result.estimate}</p>
+            <ol className="mt-6 space-y-5">
+              {result.steps.map((step) => (
+                <li key={step.title} className="flex gap-4">
+                  <span className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-full ${step.done ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                    {step.done ? <Check size={15} /> : <Truck size={15} />}
+                  </span>
+                  <div>
+                    <p className={`text-sm font-bold ${step.done ? "" : "text-muted-foreground"}`}>{step.title}</p>
+                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                    <p className="mt-1 text-xs font-semibold text-gold">{step.date}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-6 text-xs text-muted-foreground">Acompanhamento demonstrativo, para ilustrar a experiência de entrega.</p>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
