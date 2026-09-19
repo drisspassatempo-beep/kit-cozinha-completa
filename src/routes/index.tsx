@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { z } from "zod";
 import {
   ArrowLeft,
@@ -153,7 +153,7 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
   const [data, setData] = useState(initialAddress);
   const [errors, setErrors] = useState<FieldErrors>({});
   const update = (field: keyof AddressData, value: string) => { setData((current) => ({ ...current, [field]: value })); setErrors((current) => ({ ...current, [field]: undefined })); };
-  const submit = (event: React.FormEvent) => {
+  const submit = (event: FormEvent) => {
     event.preventDefault();
     const result = addressSchema.safeParse(data);
     if (!result.success) {
@@ -186,6 +186,6 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
   </div></div>;
 }
 
-function Field({ id, label, optional, error, className, children }: { id: string; label: string; optional?: boolean; error?: string; className?: string; children: React.ReactNode }) {
+function Field({ id, label, optional, error, className, children }: { id: string; label: string; optional?: boolean; error?: string; className?: string; children: ReactNode }) {
   return <div className={className}><Label htmlFor={id} className="mb-2 block">{label} {optional ? <span className="font-normal text-muted-foreground">(opcional)</span> : <span aria-hidden="true">*</span>}</Label>{children}{error && <p className="mt-1.5 text-xs font-semibold text-danger" role="alert">{error}</p>}</div>;
 }
