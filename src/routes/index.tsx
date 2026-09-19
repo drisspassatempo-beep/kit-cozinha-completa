@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { z } from "zod";
@@ -159,6 +159,15 @@ function Storefront() {
 
       <ProductQuestions />
       <OrderTracking />
+
+      <footer className="border-t border-border py-8"><div className="page-shell flex flex-col items-center justify-between gap-4 text-xs font-semibold text-muted-foreground sm:flex-row">
+        <p>© 2026 Achadinhos da China. Todos os direitos reservados.</p>
+        <nav className="flex items-center gap-6" aria-label="Links legais">
+          <Link to="/privacidade" className="hover:text-foreground">Política de Privacidade</Link>
+          <Link to="/termos" className="hover:text-foreground">Termos de Uso</Link>
+        </nav>
+      </div></footer>
+
 
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border-strong bg-background/95 px-4 py-3 backdrop-blur"><div className="mx-auto flex max-w-4xl items-center justify-between gap-4"><div className="hidden sm:block"><p className="text-xs font-bold uppercase text-gold">Oferta especial</p><p className="font-extrabold">R$ 12,99 <span className="ml-2 text-xs font-medium text-muted-foreground line-through">R$ 49,90</span></p></div><Button variant="sale" size="sale" className="w-full sm:w-auto" onClick={openCheckout}>Comprar agora <ChevronRight /></Button></div></div>
