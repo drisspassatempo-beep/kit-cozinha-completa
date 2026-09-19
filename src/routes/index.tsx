@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { z } from "zod";
 import {
@@ -8,8 +9,12 @@ import {
   Check,
   ChevronRight,
   House,
+  Loader2,
   LockKeyhole,
+  MessageCircleQuestion,
   PackageCheck,
+  PackageSearch,
+  Phone,
   ShieldCheck,
   Sparkles,
   Truck,
@@ -17,9 +22,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import productImage from "@/assets/kitchen-utensil-kit.jpg";
+import { askAboutProduct } from "@/lib/ai.functions";
+import { lookupTracking, type TrackingResult } from "@/lib/tracking";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
