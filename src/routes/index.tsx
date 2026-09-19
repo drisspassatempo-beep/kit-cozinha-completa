@@ -14,6 +14,7 @@ import {
   Sparkles,
   Truck,
   UtensilsCrossed,
+  type LucideIcon,
 } from "lucide-react";
 import productImage from "@/assets/kitchen-utensil-kit.jpg";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,12 @@ const reviews = [
   ["Muito lindo e de ótima qualidade! Já uso todos os dias.", "Carlos M. · São Paulo / SP"],
   ["Realmente vale a pena! Organizou minha cozinha e ficou linda!", "Beatriz L. · Minas Gerais / MG"],
   ["Chegou antes do prazo e tudo certinho. É exatamente o que eu precisava!", "Fernanda T. · Bahia / BA"],
+];
+const benefits: Array<[LucideIcon, string]> = [
+  [ShieldCheck, "Material de alta qualidade"],
+  [Sparkles, "Design moderno e elegante"],
+  [House, "Cozinha sempre organizada"],
+  [PackageCheck, "Praticidade no dia a dia"],
 ];
 
 function digits(value: string) { return value.replace(/\D/g, ""); }
@@ -135,7 +142,7 @@ function Storefront() {
       </section>
 
       <section id="beneficios" className="border-y border-border bg-background py-10"><div className="page-shell grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        {[[ShieldCheck,"Material de alta qualidade"],[Sparkles,"Design moderno e elegante"],[House,"Cozinha sempre organizada"],[PackageCheck,"Praticidade no dia a dia"]].map(([Icon,label]) => { const BenefitIcon = Icon; return <div key={label as string} className="flex items-center gap-4 lg:flex-col lg:text-center"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-success-soft text-primary"><BenefitIcon size={21} /></span><h3 className="text-sm font-bold">{label as string}</h3></div>; })}
+        {benefits.map(([BenefitIcon, label]) => <div key={label} className="flex items-center gap-4 lg:flex-col lg:text-center"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-success-soft text-primary"><BenefitIcon size={21} /></span><h3 className="text-sm font-bold">{label}</h3></div>)}
       </div></section>
 
       <section id="avaliacoes" className="py-16 sm:py-20"><div className="page-shell"><div className="flex flex-wrap items-end justify-between gap-5"><div><p className="text-xs font-extrabold uppercase text-gold">Experiências reais</p><h2 className="mt-2 text-3xl font-extrabold">Quem comprou, recomenda</h2></div><div className="flex items-center gap-3"><span className="text-2xl font-extrabold">4,9</span><span className="text-sm text-gold">★★★★★</span></div></div>
@@ -186,6 +193,6 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
   </div></div>;
 }
 
-function Field({ id, label, optional, error, className, children }: { id: string; label: string; optional?: boolean; error?: string; className?: string; children: ReactNode }) {
+function Field({ id, label, optional, error, className, children }: { id: string; label: string; optional?: boolean | undefined; error?: string | undefined; className?: string | undefined; children: ReactNode }) {
   return <div className={className}><Label htmlFor={id} className="mb-2 block">{label} {optional ? <span className="font-normal text-muted-foreground">(opcional)</span> : <span aria-hidden="true">*</span>}</Label>{children}{error && <p className="mt-1.5 text-xs font-semibold text-danger" role="alert">{error}</p>}</div>;
 }
