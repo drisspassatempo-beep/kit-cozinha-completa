@@ -14,7 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      order_events: {
+        Row: {
+          description: string | null
+          happened_at: string
+          id: string
+          order_id: string
+          title: string
+        }
+        Insert: {
+          description?: string | null
+          happened_at?: string
+          id?: string
+          order_id: string
+          title: string
+        }
+        Update: {
+          description?: string | null
+          happened_at?: string
+          id?: string
+          order_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount_cents: number
+          carrier: string | null
+          city: string
+          complement: string | null
+          cpf_digits: string
+          created_at: string
+          customer_name: string
+          district: string
+          estimated_delivery: string | null
+          id: string
+          installments: number
+          number: string
+          order_code: string
+          payment_link_url: string | null
+          payment_status: string
+          phone_digits: string
+          shipping_status: string
+          state: string
+          street: string
+          tracking_code: string | null
+          updated_at: string
+          zip: string
+        }
+        Insert: {
+          amount_cents?: number
+          carrier?: string | null
+          city: string
+          complement?: string | null
+          cpf_digits: string
+          created_at?: string
+          customer_name: string
+          district: string
+          estimated_delivery?: string | null
+          id?: string
+          installments?: number
+          number: string
+          order_code: string
+          payment_link_url?: string | null
+          payment_status?: string
+          phone_digits: string
+          shipping_status?: string
+          state: string
+          street: string
+          tracking_code?: string | null
+          updated_at?: string
+          zip: string
+        }
+        Update: {
+          amount_cents?: number
+          carrier?: string | null
+          city?: string
+          complement?: string | null
+          cpf_digits?: string
+          created_at?: string
+          customer_name?: string
+          district?: string
+          estimated_delivery?: string | null
+          id?: string
+          installments?: number
+          number?: string
+          order_code?: string
+          payment_link_url?: string | null
+          payment_status?: string
+          phone_digits?: string
+          shipping_status?: string
+          state?: string
+          street?: string
+          tracking_code?: string | null
+          updated_at?: string
+          zip?: string
+        }
+        Relationships: []
+      }
+      store_settings: {
+        Row: {
+          gateway_name: string
+          id: boolean
+          max_installments: number
+          payment_link_url: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          gateway_name?: string
+          id?: boolean
+          max_installments?: number
+          payment_link_url?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          gateway_name?: string
+          id?: boolean
+          max_installments?: number
+          payment_link_url?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
