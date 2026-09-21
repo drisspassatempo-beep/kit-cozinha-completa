@@ -177,9 +177,27 @@ function Storefront() {
   );
 }
 
+function formatMoney(cents: number) {
+  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 | 2) => void; onClose: () => void }) {
+  const loadSettings = useServerFn(getPaymentSettings);
+  const placeOrder = useServerFn(createOrder);
   const [data, setData] = useState(initialAddress);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [settings, setSettings] = useState<{ gatewayName: string; maxInstallments: number; paymentConfigured: boolean; whatsapp: string | null; amountCents: number } | null>(null);
+  const [installments, setInstallments] = useState(1);
+  const [order, setOrder] = useState<{ orderCode: string; installments: number; amountCents: number; paymentUrl: string | null } | null>(null);
+  const [sending, setSending] = useState(false);
+  const [orderError, setOrderError] = useState("");
+
+  useEffect(() => { void loadSettings().then(setSettings).catch(() => setSettings(null)); }, [loadSettings]);
+
+  const amount = settings?.amountCents ?? 1299;
+  const maxInstallments = settings?.maxInstallments ?? 1;
+  const options = Array.from({ length: maxInstallments }, (_, index) => index + 1);
+
   const update = (field: keyof AddressData, value: string) => { setData((current) => ({ ...current, [field]: value })); setErrors((current) => ({ ...current, [field]: undefined })); };
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -192,11 +210,24 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
     }
     setStep(2);
   };
+
+  const confirmPayment = async () => {
+    setSending(true); setOrderError("");
+    try {
+      const created = await placeOrder({ data: { ...data, installments } });
+      setOrder(created);
+    } catch {
+      setOrderError("Não foi possível gerar o pagamento agora. Tente novamente em instantes.");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return <div className="fixed inset-0 z-50 overflow-y-auto bg-background px-4 py-5 sm:py-8" role="dialog" aria-modal="true" aria-label="Finalizar pedido"><div className="mx-auto max-w-2xl">
     <div className="flex items-center justify-between"><Button variant="ghost" onClick={step === 2 ? () => setStep(1) : onClose}><ArrowLeft /> Voltar</Button><span className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><LockKeyhole size={14} /> Ambiente seguro</span></div>
-    <ol className="mt-5 grid grid-cols-3 gap-2" aria-label="Progresso da compra">{["Endereço","Pagamento","Confirmação"].map((label,index) => <li key={label} className={`border-t-2 pt-3 text-xs font-bold ${index < step ? "border-primary text-foreground" : "border-border text-muted-foreground"}`}><span className={`mr-2 inline-grid size-6 place-items-center rounded-full ${index < step ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{index + 1}</span><span className="hidden sm:inline">{label}</span></li>)}</ol>
-    {step === 1 ? <form onSubmit={submit} noValidate className="mt-7 rounded-lg border border-border bg-card p-5 sm:p-8"><div className="flex gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-success-soft text-primary"><Truck size={21} /></span><div><h2 className="text-2xl font-extrabold">Endereço de entrega</h2><p className="mt-1 text-sm text-muted-foreground">O pagamento acontece somente na próxima etapa.</p></div></div>
-      <div className="mt-6 flex justify-between rounded-md bg-success-soft p-4 text-sm"><span>Kit organizador + utensílios</span><strong>R$ 12,99</strong></div>
+    <ol className="mt-5 grid grid-cols-3 gap-2" aria-label="Progresso da compra">{["Endereço","Pagamento","Confirmação"].map((label,index) => <li key={label} className={`border-t-2 pt-3 text-xs font-bold ${index < (order ? 3 : step) ? "border-primary text-foreground" : "border-border text-muted-foreground"}`}><span className={`mr-2 inline-grid size-6 place-items-center rounded-full ${index < (order ? 3 : step) ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{index + 1}</span><span className="hidden sm:inline">{label}</span></li>)}</ol>
+    {step === 1 ? <form onSubmit={submit} noValidate className="mt-7 rounded-lg border border-border bg-card p-5 sm:p-8"><div className="flex gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-success-soft text-primary"><Truck size={21} /></span><div><h2 className="text-2xl font-extrabold">Endereço de entrega</h2><p className="mt-1 text-sm text-muted-foreground">O pagamento acontece na próxima etapa.</p></div></div>
+      <div className="mt-6 flex justify-between rounded-md bg-success-soft p-4 text-sm"><span>Kit organizador + utensílios</span><strong>{formatMoney(amount)}</strong></div>
       <div className="mt-7 grid gap-5 sm:grid-cols-2">
         <Field className="sm:col-span-2" id="name" label="Nome completo" error={errors.name}><Input id="name" autoComplete="name" maxLength={100} value={data.name} onChange={(e) => update("name", e.target.value)} aria-invalid={Boolean(errors.name)} /></Field>
         <Field id="cpf" label="CPF" error={errors.cpf}><Input id="cpf" inputMode="numeric" maxLength={14} value={data.cpf} onChange={(e) => update("cpf", formatCpf(e.target.value))} aria-invalid={Boolean(errors.cpf)} placeholder="000.000.000-00" /></Field>
@@ -208,8 +239,33 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
         <Field className="sm:col-span-2" id="street" label="Endereço" error={errors.street}><Input id="street" autoComplete="street-address" maxLength={120} value={data.street} onChange={(e) => update("street", e.target.value)} aria-invalid={Boolean(errors.street)} /></Field>
         <Field id="number" label="Número" error={errors.number}><Input id="number" maxLength={12} value={data.number} onChange={(e) => update("number", e.target.value)} aria-invalid={Boolean(errors.number)} /></Field>
         <Field id="complement" label="Complemento" optional error={errors.complement}><Input id="complement" maxLength={80} value={data.complement} onChange={(e) => update("complement", e.target.value)} /></Field>
-      </div><Button type="submit" variant="sale" size="sale" className="mt-8 w-full">Ir para pagamento <ArrowRight /></Button><p className="mt-3 text-center text-xs text-muted-foreground">Seus dados são usados apenas para esta simulação de pedido.</p>
-    </form> : <section className="mt-7 rounded-lg border border-border bg-card p-7 text-center sm:p-10"><span className="mx-auto grid size-14 place-items-center rounded-full bg-success-soft text-primary"><BadgeCheck size={29} /></span><p className="mt-6 text-xs font-extrabold uppercase text-gold">Endereço validado</p><h2 className="mt-2 text-2xl font-extrabold">Pronto para o pagamento</h2><p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">Esta demonstração não realiza cobranças. Em uma loja publicada, as formas de pagamento apareceriam aqui.</p><Button variant="saleOutline" size="sale" className="mt-7" onClick={onClose}>Voltar à oferta</Button></section>}
+      </div><Button type="submit" variant="sale" size="sale" className="mt-8 w-full">Ir para pagamento <ArrowRight /></Button><p className="mt-3 text-center text-xs text-muted-foreground">Usamos seus dados apenas para entregar e acompanhar o pedido.</p>
+    </form> : order ? <section className="mt-7 rounded-lg border border-border bg-card p-7 text-center sm:p-10"><span className="mx-auto grid size-14 place-items-center rounded-full bg-success-soft text-primary"><BadgeCheck size={29} /></span>
+      <p className="mt-6 text-xs font-extrabold uppercase text-gold">Pedido {order.orderCode}</p>
+      <h2 className="mt-2 text-2xl font-extrabold">Falta só o pagamento</h2>
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">{order.installments}x de {formatMoney(Math.round(order.amountCents / order.installments))} · total {formatMoney(order.amountCents)}. Guarde o número do pedido para acompanhar a entrega.</p>
+      {order.paymentUrl
+        ? <a href={order.paymentUrl} target="_blank" rel="noopener noreferrer" className="mt-7 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary px-8 text-base font-extrabold text-primary-foreground">
+            <CreditCard /> Pagar agora
+          </a>
+        : <p className="mt-7 rounded-md bg-danger-soft p-4 text-sm font-semibold text-danger">O link de pagamento ainda não foi configurado no painel da loja. Seu pedido ficou registrado e a loja entra em contato pelo WhatsApp informado.</p>}
+      <Button variant="saleOutline" size="sale" className="mt-6" onClick={onClose}>Voltar à oferta</Button>
+    </section> : <section className="mt-7 rounded-lg border border-border bg-card p-5 sm:p-8">
+      <div className="flex gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-success-soft text-primary"><CreditCard size={21} /></span><div><h2 className="text-2xl font-extrabold">Pagamento</h2><p className="mt-1 text-sm text-muted-foreground">Escolha em quantas vezes quer pagar{settings ? ` · ${settings.gatewayName}` : ""}.</p></div></div>
+      <div className="mt-6 space-y-3">
+        {options.map((count) => (
+          <label key={count} className={`flex cursor-pointer items-center justify-between rounded-md border p-4 text-sm ${installments === count ? "border-primary bg-success-soft" : "border-border"}`}>
+            <span className="flex items-center gap-3"><input type="radio" name="installments" value={count} checked={installments === count} onChange={() => setInstallments(count)} className="size-4" /><strong>{count}x de {formatMoney(Math.round(amount / count))}</strong></span>
+            <span className="text-muted-foreground">total {formatMoney(amount)}{count === 1 ? " · à vista" : " · sem juros"}</span>
+          </label>
+        ))}
+      </div>
+      {orderError && <p className="mt-5 text-sm font-semibold text-danger" role="alert">{orderError}</p>}
+      <Button variant="sale" size="sale" className="mt-7 w-full" onClick={() => void confirmPayment()} disabled={sending}>
+        {sending ? <><Loader2 className="animate-spin" /> Gerando pagamento</> : <>Ir para o pagamento <ArrowRight /></>}
+      </Button>
+      <p className="mt-3 text-center text-xs text-muted-foreground">Você é levado ao ambiente de pagamento da loja para concluir a compra.</p>
+    </section>}
     <p className="mt-6 text-center text-xs text-muted-foreground">Compra protegida · Dados criptografados · Atendimento seguro</p>
   </div></div>;
 }
