@@ -177,6 +177,70 @@ export const lookupOrder = createServerFn({ method: "POST" })
     };
   });
 
+export type OrderConfirmation = {
+  orderCode: string;
+  amountCents: number;
+  installments: number;
+  paymentStatus: string;
+  shippingStatus: string;
+  paymentUrl: string | null;
+  customerName: string;
+  city: string;
+  state: string;
+  street: string;
+  number: string;
+  complement: string | null;
+  district: string;
+  zip: string;
+  createdAt: string;
+  events: OrderEvent[];
+};
+
+/** Public confirmation page: full summary of a saved order. The order code acts as the access token. */
+export const getOrderConfirmation = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => z.object({ orderCode: z.string().trim().min(8).max(40) }).parse(input))
+  .handler(async ({ data }): Promise<OrderConfirmation | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select(
+        "id, order_code, amount_cents, installments, payment_status, shipping_status, payment_link_url, customer_name, city, state, street, number, complement, district, zip, created_at",
+      )
+      .eq("order_code", data.orderCode.toUpperCase())
+      .maybeSingle();
+
+    if (!order) return null;
+
+    const { data: events } = await supabaseAdmin
+      .from("order_events")
+      .select("title, description, happened_at")
+      .eq("order_id", order.id)
+      .order("happened_at", { ascending: true });
+
+    return {
+      orderCode: order.order_code,
+      amountCents: order.amount_cents,
+      installments: order.installments,
+      paymentStatus: order.payment_status,
+      shippingStatus: order.shipping_status,
+      paymentUrl: order.payment_link_url,
+      customerName: order.customer_name,
+      city: order.city,
+      state: order.state,
+      street: order.street,
+      number: order.number,
+      complement: order.complement,
+      district: order.district,
+      zip: order.zip,
+      createdAt: order.created_at,
+      events: (events ?? []).map((event) => ({
+        title: event.title,
+        description: event.description,
+        happenedAt: event.happened_at,
+      })),
+    };
+  });
+
 function assertAdmin(code: string) {
   const expected = process.env["ADMIN_ACCESS_CODE"];
   if (!expected) throw new Error("Área administrativa ainda não configurada.");

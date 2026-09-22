@@ -7,6 +7,7 @@
 - [x] Perguntas sobre o produto respondidas por IA
 - [x] Área de acompanhamento do pedido (demonstrativa)
 - [ ] Página de pagamento real com parcelamento e link de pagamento
+- [x] Página de confirmação real com o pedido salvo (/pedido/:codigo)
 - [ ] Rastreio com dados reais do pedido
 - [ ] Definir provedor de pagamento e uso da chave enviada pelo cliente
 - [ ] Usar a gateway "Escama Black" como provedor do link de pagamento
