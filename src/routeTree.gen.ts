@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as PedidoOrderCodeRouteImport } from './routes/pedido/$orderCode'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const TermosRoute = TermosRouteImport.update({
   path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PedidoOrderCodeRoute = PedidoOrderCodeRouteImport.update({
+  id: '/pedido/$orderCode',
+  path: '/pedido/$orderCode',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/privacidade': typeof PrivacidadeRoute
   '/termos': typeof TermosRoute
+  '/pedido/$orderCode': typeof PedidoOrderCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/privacidade': typeof PrivacidadeRoute
   '/termos': typeof TermosRoute
+  '/pedido/$orderCode': typeof PedidoOrderCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,20 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/privacidade': typeof PrivacidadeRoute
   '/termos': typeof TermosRoute
+  '/pedido/$orderCode': typeof PedidoOrderCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/privacidade' | '/termos'
+  fullPaths: '/' | '/admin' | '/privacidade' | '/termos' | '/pedido/$orderCode'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/privacidade' | '/termos'
-  id: '__root__' | '/' | '/admin' | '/privacidade' | '/termos'
+  to: '/' | '/admin' | '/privacidade' | '/termos' | '/pedido/$orderCode'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/privacidade'
+    | '/termos'
+    | '/pedido/$orderCode'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +82,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   TermosRoute: typeof TermosRoute
+  PedidoOrderCodeRoute: typeof PedidoOrderCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pedido/$orderCode': {
+      id: '/pedido/$orderCode'
+      path: '/pedido/$orderCode'
+      fullPath: '/pedido/$orderCode'
+      preLoaderRoute: typeof PedidoOrderCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +130,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   TermosRoute: TermosRoute,
+  PedidoOrderCodeRoute: PedidoOrderCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

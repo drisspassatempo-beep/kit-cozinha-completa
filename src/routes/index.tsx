@@ -249,7 +249,12 @@ function Checkout({ step, setStep, onClose }: { step: 1 | 2; setStep: (step: 1 |
             <CreditCard /> Pagar agora
           </a>
         : <p className="mt-7 rounded-md bg-danger-soft p-4 text-sm font-semibold text-danger">O link de pagamento ainda não foi configurado no painel da loja. Seu pedido ficou registrado e a loja entra em contato pelo WhatsApp informado.</p>}
-      <Button variant="saleOutline" size="sale" className="mt-6" onClick={onClose}>Voltar à oferta</Button>
+      <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Link to="/pedido/$orderCode" params={{ orderCode: order.orderCode }} className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-primary px-8 text-base font-extrabold text-primary">
+          <BadgeCheck /> Ver confirmação do pedido
+        </Link>
+        <Button variant="ghost" onClick={onClose}>Voltar à oferta</Button>
+      </div>
     </section> : <section className="mt-7 rounded-lg border border-border bg-card p-5 sm:p-8">
       <div className="flex gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-success-soft text-primary"><CreditCard size={21} /></span><div><h2 className="text-2xl font-extrabold">Pagamento</h2><p className="mt-1 text-sm text-muted-foreground">Escolha em quantas vezes quer pagar{settings ? ` · ${settings.gatewayName}` : ""}.</p></div></div>
       <div className="mt-6 space-y-3">
