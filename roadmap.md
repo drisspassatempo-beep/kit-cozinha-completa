@@ -11,4 +11,4 @@
 - [ ] Rastreio com dados reais do pedido
 - [ ] Definir provedor de pagamento e uso da chave enviada pelo cliente
 - [ ] Usar a gateway "Escama Black" como provedor do link de pagamento
-- [ ] Alterar e validar o fundo global vermelho nos temas claro e escuro
+- [x] Alterar e validar o fundo global vermelho nos temas claro e escuro
