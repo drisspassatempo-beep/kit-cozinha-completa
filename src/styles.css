@@ -179,3 +179,22 @@
   background-image: linear-gradient(to right, oklch(1 0 0 / 0.035) 1px, transparent 1px), linear-gradient(to bottom, oklch(1 0 0 / 0.035) 1px, transparent 1px);
   background-size: 48px 48px;
 }
+
+/* Cream panels keep their own readable token set, so their text stays dark
+   and legible in both the light and the dark appearance. */
+@utility panel-cream {
+  background-color: var(--surface-soft);
+  color: var(--gold-foreground);
+  --foreground: var(--gold-foreground);
+  --primary: oklch(0.48 0.15 151);
+  --primary-hover: oklch(0.42 0.14 151);
+  --primary-foreground: oklch(0.99 0 0);
+  --muted-foreground: oklch(0.42 0.012 80);
+  --border: oklch(0.2 0.01 80 / 0.16);
+  --border-strong: oklch(0.2 0.01 80 / 0.3);
+  --input: oklch(0.2 0.01 80 / 0.3);
+  --ring: oklch(0.48 0.15 151);
+  --card: oklch(1 0 0 / 0.55);
+  --card-foreground: var(--gold-foreground);
+  --danger: oklch(0.5 0.19 25);
+}
