@@ -13,3 +13,4 @@
 - [ ] Usar a gateway "Escama Black" como provedor do link de pagamento
 - [x] Alterar e validar o fundo global vermelho nos temas claro e escuro
 - [x] Trocar o fundo global de vermelho para verde nos temas claro e escuro (validado)
+- [ ] Deixar o fundo global escuro com boa legibilidade (validar light e dark)
