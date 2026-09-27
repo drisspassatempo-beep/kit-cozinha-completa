@@ -142,7 +142,7 @@ function Storefront() {
         </div>
       </section>
 
-      <section id="incluso" className="bg-surface-soft py-16 text-gold-foreground sm:py-20">
+      <section id="incluso" className="panel-cream py-16 sm:py-20">
         <div className="page-shell grid items-center gap-12 lg:grid-cols-[0.8fr_1.2fr]">
           <div><p className="text-xs font-extrabold uppercase text-primary">Conteúdo do kit</p><h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">Tudo organizado. Tudo à mão.</h2><p className="mt-4 max-w-lg text-base opacity-70">Um conjunto completo para preparar, servir e organizar suas refeições.</p>
             <ul className="mt-8 grid grid-cols-2 gap-x-5 gap-y-4">{kitItems.map((item) => <li key={item} className="flex items-center gap-3 text-sm font-semibold"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-gold"><Check size={14} /></span>{item}</li>)}</ul>
@@ -305,7 +305,7 @@ function ProductQuestions() {
   };
 
   return (
-    <section id="duvidas" className="border-y border-border bg-surface-soft py-16 text-gold-foreground sm:py-20">
+    <section id="duvidas" className="panel-cream border-y border-border py-16 sm:py-20">
       <div className="page-shell max-w-3xl">
         <p className="text-xs font-extrabold uppercase text-primary">Tire suas dúvidas</p>
         <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">Pergunte sobre o produto</h2>
