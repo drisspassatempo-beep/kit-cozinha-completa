@@ -8,6 +8,7 @@ import {
   BadgeCheck,
   Check,
   ChevronRight,
+  CreditCard,
   House,
   Loader2,
   LockKeyhole,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 import productImage from "@/assets/kitchen-utensil-kit.jpg";
 import { askAboutProduct } from "@/lib/ai.functions";
+import { createOrder, getPaymentSettings } from "@/lib/orders.functions";
 import { lookupTracking, type TrackingResult } from "@/lib/tracking";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
